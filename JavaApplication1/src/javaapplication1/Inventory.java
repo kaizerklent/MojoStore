@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Vector;
@@ -68,6 +69,7 @@ Connection con;
         btnEdit = new javax.swing.JButton();
         btnClear = new javax.swing.JButton();
         btnHome = new javax.swing.JButton();
+        btnAdd = new javax.swing.JButton();
         jPanel6 = new javax.swing.JPanel();
         btnInventory = new javax.swing.JButton();
         btnItems = new javax.swing.JButton();
@@ -240,30 +242,43 @@ Connection con;
             }
         });
 
+        btnAdd.setBackground(new java.awt.Color(204, 255, 255));
+        btnAdd.setIcon(new javax.swing.ImageIcon(getClass().getResource("/javaapplication1/Arturo-Wibawa-Akar-Save.16.png"))); // NOI18N
+        btnAdd.setText("Add");
+        btnAdd.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        btnAdd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAddActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
                 .addContainerGap(51, Short.MAX_VALUE)
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnSave, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnDelete, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnEdit, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnClear, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnHome, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnSave, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnEdit, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnClear, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnHome, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(41, 41, 41))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
-                .addGap(81, 81, 81)
+                .addGap(60, 60, 60)
                 .addComponent(btnSave, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(btnEdit, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btnClear, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(btnHome, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -451,7 +466,8 @@ Connection con;
     private void inventoryMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_inventoryMouseClicked
         DefaultTableModel Df = (DefaultTableModel)inventory.getModel();
         int selectedIndex = inventory.getSelectedRow();
-
+        
+        txtItemID.setEnabled(false);
         txtStockID.setText(Df.getValueAt(selectedIndex, 0).toString());
         txtItemID.setSelectedItem(Df.getValueAt(selectedIndex, 1).toString());
         txtqty.setText(Df.getValueAt(selectedIndex, 2).toString());
@@ -460,31 +476,32 @@ Connection con;
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
         
-    String sql = "INSERT INTO inventory (StockID, ProductID, Quantity, Batch) VALUES (?, ?, ?, ?)";
-
-    try (Connection con = Conn.getConnection()) {
-        PreparedStatement pst = con.prepareStatement(sql);
-
-        pst.setString(1, txtStockID.getText());
-        pst.setString(2, txtItemID.getSelectedItem().toString());
-        pst.setInt(3, Integer.parseInt(txtqty.getText()));
-        pst.setString(4, date.getText());
-
-        int rows = pst.executeUpdate();
-
-        if (rows > 0) {
-            JOptionPane.showMessageDialog(this, "Data inserted successfully.");
-            txtqty.setText("");
-            inventoryview();
-            IDgen();
-        } else {
-            JOptionPane.showMessageDialog(this, "Failed to insert data.");
+        if (txtStockID.getText().isEmpty() || txtqty.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Select an inventory record first.");
+            return;
         }
 
-    } catch (SQLException e) {
-        JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
-    }
+        String sql = "UPDATE inventory SET Quantity = ? WHERE StockID = ?";
 
+        try (Connection con = Conn.getConnection();
+             PreparedStatement pst = con.prepareStatement(sql)) {
+
+            pst.setInt(1, Integer.parseInt(txtqty.getText()));
+            pst.setString(2, txtStockID.getText());
+
+            int rows = pst.executeUpdate();
+
+            if (rows > 0) {
+                JOptionPane.showMessageDialog(this, "Inventory updated successfully.");
+                inventoryview();
+                txtqty.setText("");
+            } else {
+                JOptionPane.showMessageDialog(this, "No inventory record found.");
+            }
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Update failed: " + ex.getMessage());
+        }
     }//GEN-LAST:event_btnSaveActionPerformed
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
@@ -560,7 +577,10 @@ Connection con;
     }
  }
     private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearActionPerformed
-        // TODO add your handling code here:
+        txtqty.setText("");
+        txtStockID.setText("");
+        txtItemID.setEnabled(true);
+        IDgen();
     }//GEN-LAST:event_btnClearActionPerformed
 
     private void btnHomeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHomeActionPerformed
@@ -598,6 +618,53 @@ Connection con;
         out.setVisible(true);
         setVisible(false);
     }//GEN-LAST:event_btnExitjButton5ActionPerformed
+
+    private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
+        if (txtItemID.getSelectedItem() == null || txtqty.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Select product and enter quantity");
+            return;
+        }
+
+        String productId = txtItemID.getSelectedItem().toString();
+        int qty = Integer.parseInt(txtqty.getText());
+
+        try (Connection con = Conn.getConnection()) {
+
+            // 1️⃣ Try UPDATE first
+            String updateSql =
+                "UPDATE inventory SET Quantity = Quantity + ? WHERE ProductID = ?";
+            PreparedStatement pstUpdate = con.prepareStatement(updateSql);
+            pstUpdate.setInt(1, qty);
+            pstUpdate.setString(2, productId);
+
+            int rowsUpdated = pstUpdate.executeUpdate();
+
+            // 2️⃣ If no row updated → INSERT
+            if (rowsUpdated == 0) {
+
+                String insertSql =
+                    "INSERT INTO inventory (StockID, ProductID, Quantity, Batch) " +
+                    "SELECT ?, ProductID, ?, ? FROM product WHERE ProductID = ?";
+
+                PreparedStatement pstInsert = con.prepareStatement(insertSql);
+                pstInsert.setString(1, txtStockID.getText());
+                pstInsert.setInt(2, qty);
+                pstInsert.setDate(3, java.sql.Date.valueOf(LocalDate.now()));
+                pstInsert.setString(4, productId);
+
+                pstInsert.executeUpdate();
+            }
+
+            JOptionPane.showMessageDialog(this, "Inventory updated");
+            inventoryview();
+            IDgen();
+            txtItemID.setEnabled(true);
+            txtqty.setText("");
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
+        }
+    }//GEN-LAST:event_btnAddActionPerformed
 
     /**
      * @param args the command line arguments
@@ -637,6 +704,7 @@ Connection con;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAccounts;
+    private javax.swing.JButton btnAdd;
     private javax.swing.JButton btnClear;
     private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnEdit;
